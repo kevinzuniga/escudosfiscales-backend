@@ -2,6 +2,8 @@ import { DataTypes } from 'sequelize';
 import { sequelize } from '../database/database.js';
 
 import { Quote } from './quote.js';
+import { Item } from './item.js';
+import { Client } from './client.js';
 
 // const { PollsxChannels } = require('./PollxChannel.js');
 // const { Votes } = require('./Vote.js');
@@ -40,7 +42,14 @@ User.hasMany(Quote, {
   foreignKey: 'user_id',
   sourceKey: 'id'
 });
-
+Client.hasMany(Quote, {
+  foreignKey: 'client_id',
+  sourceKey: 'id'
+});
+Quote.hasMany(Item, {
+  foreignKey: 'quote_id',
+  sourceKey: 'id'
+});
 // PollsxChannels.belongsTo(User, {
 //   foreignKey: 'poll_id',
 //   targetId: 'id'

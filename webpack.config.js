@@ -5,7 +5,10 @@ const nodeExternals = require('webpack-node-externals');
 module.exports = {
   entry: slsw.lib.entries,
   externals: [
-    nodeExternals(),
+    nodeExternals({
+      // excluye los paquetes que necesitas, como `pg` y `pg-hstore`
+      allowlist: ['pg', 'pg-hstore'],
+    }),
   ],
   output: {
     libraryTarget: 'commonjs',

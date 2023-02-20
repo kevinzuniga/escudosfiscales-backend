@@ -2,6 +2,9 @@
 import { loadSequelize } from './database/database.js';
 import { Op, QueryTypes } from 'sequelize';
 import { User } from './models/user.js';
+import { Client } from './models/client.js';
+import { Quote } from './models/quote.js';
+import { Item } from './models/item.js';
 let sequelizeInstance = null;
 
 const initializeSequelize = async () => {
@@ -61,7 +64,7 @@ export const createUser = async (event) => {
     const data = JSON.parse(event.body);
     const sequelize = await initializeSequelize();
     try {
-        //creo el poll
+        //creo el user
         const newUser = await User.create(data);
         return createResponse(200, newUser);
     } catch (err) {
@@ -78,9 +81,39 @@ export const login = async (event) => {
             where: { email: email, password: password }
         });
         if (!user) {
-            return createErrorResponse(400, 'No found!');
+            return createErrorResponse(400, 'User not found!');
         }
         return createResponse(200, user);
+    } catch (err) {
+        return createErrorResponse(err.statusCode, err.message);
+    } finally {
+        await sequelize.connectionManager.close();
+    }
+};
+export const createClient = async (event) => {
+    const data = JSON.parse(event.body);
+    const sequelize = await initializeSequelize();
+    try {
+        //creo el client
+        const newClient = await Client.create(data);
+        return createResponse(200, newClient);
+    } catch (err) {
+        return createErrorResponse(err.statusCode, err.message);
+    } finally {
+        await sequelize.connectionManager.close();
+    }
+};
+export const findClient = async (event) => {
+    const ruc = event.pathParameters.ruc;
+    const sequelize = await initializeSequelize();
+    try {
+        const client = await User.findOne({
+            where: { ruc: ruc }
+        });
+        if (!client) {
+            return createErrorResponse(400, 'Client not found!');
+        }
+        return createResponse(200, client);
     } catch (err) {
         return createErrorResponse(err.statusCode, err.message);
     } finally {

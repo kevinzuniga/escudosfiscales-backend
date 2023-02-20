@@ -1,4 +1,4 @@
-const Sequelize = require('sequelize');
+import Sequelize from 'sequelize';
 
 const CURRENT_LAMBDA_FUNCTION_TIMEOUT= 3000;
 export const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
