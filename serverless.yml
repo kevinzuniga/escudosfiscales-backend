@@ -68,3 +68,83 @@ functions:
               - Access-Control-Allow-Headers
               - Access-Control-Allow-Origin
             allowCredentials: false
+  createClient:
+    handler: handler.createClient
+    events:
+      - http:
+          path: client
+          method: post
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - Startlower
+              - Text
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Origin
+            allowCredentials: false
+  findClient:
+    handler: handler.findClient
+    events:
+      - http:
+          path: client/{ruc}
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - Startlower
+              - Text
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Origin
+            allowCredentials: false
+  createQuote:
+    handler: handler.createQuote
+    events:
+      - http:
+          path: quote
+          method: post
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - Startlower
+              - Text
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Origin
+            allowCredentials: false
+  searchQuote:
+    handler: handler.searchQuote
+    events:
+      - http:
+          path: quote/search
+          method: post
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - Startlower
+              - Text
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Origin
+            allowCredentials: false

@@ -29,7 +29,6 @@ export const Item = sequelize.define('item', {
   },
   in_row_comments: {
     type: DataTypes.STRING(5000),
-    defaultValue: [],
   }
 }, {
   timestamps: true

@@ -107,13 +107,74 @@ export const findClient = async (event) => {
     const ruc = event.pathParameters.ruc;
     const sequelize = await initializeSequelize();
     try {
-        const client = await User.findOne({
+        const client = await Client.findOne({
             where: { ruc: ruc }
         });
         if (!client) {
             return createErrorResponse(400, 'Client not found!');
         }
         return createResponse(200, client);
+    } catch (err) {
+        return createErrorResponse(err.statusCode, err.message);
+    } finally {
+        await sequelize.connectionManager.close();
+    }
+};
+export const createQuote = async (event) => {
+    const data = JSON.parse(event.body);
+    const { items, ...quoteData } = data;
+    const sequelize = await initializeSequelize();
+    try {
+        //creo el quote
+        const newQuote = await Quote.create(quoteData);
+        //verifico si hay items en el body
+        if (!!items) {
+            //genero la estructura a registrar
+            let itemsArray = [];
+            itemsArray = items.map(item => ({
+                ...item,
+                quote_id: newQuote.id
+            }));
+            //ingreso cada id de channel en la tabla
+            await Item.bulkCreate(itemsArray);
+        }
+        return createResponse(200, { ...newQuote, itemsArray });
+    } catch (err) {
+        return createErrorResponse(err.statusCode, err.message);
+    } finally {
+        await sequelize.connectionManager.close();
+    }
+};
+export const searchQuote = async (event) => {
+    const sequelize = await initializeSequelize();
+    const data = JSON.parse(event.body);
+    try {
+        // realizo el query
+        // puede haber query por usuario, por numero de cotizacion
+        // por ruc y por rango de fechas
+        const { ruc, quote_number, user_id, start_date, end_date } = data;
+        const hasRuc = !!ruc | false;
+        const hasQN = !!quote_number | false;
+        const hasUID = !!user_id | false;
+        const hasDate = (!!start_date && !!end_date) | false;
+        let query = `
+            Select q.*
+            from public.quotes as q
+            inner join public.users as u on u.id = q.user_id
+            inner join public.clients as cli on cli.id = q.client_id
+            where 
+        `;
+        if (hasRuc) query = 'cli.ruc = ' + ruc;
+        if (hasQN) query += query.length ? 'AND q.quote_number = ' + quote_number : 'q.quote_number = ' + quote_number;
+        if (hasUID) query += query.length ? 'AND u.id = ' + user_id : 'u.id = ' + user_id;
+        if (hasDate) query += query.length ? 'AND q.creation_date > ' + start_date + ' AND q.creation_date < ' + end_date : 'q.creation_date > ' + start_date + ' AND q.creation_date < ' + end_date;
+        const results = await sequelize.query(query, { type: QueryTypes.SELECT });
+        // verifico si hay resultados en el query
+        if (!(!!results && results.length > 0)) {
+            return createErrorResponse(404, 'No quotes found!');
+        }
+        // entregar el resultado
+        return createResponse(200, results);
     } catch (err) {
         return createErrorResponse(err.statusCode, err.message);
     } finally {
