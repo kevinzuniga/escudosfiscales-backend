@@ -128,9 +128,9 @@ export const createQuote = async (event) => {
         //creo el quote
         const newQuote = await Quote.create(quoteData);
         //verifico si hay items en el body
+        let itemsArray = [];
         if (!!items) {
             //genero la estructura a registrar
-            let itemsArray = [];
             itemsArray = items.map(item => ({
                 ...item,
                 quote_id: newQuote.id
@@ -138,7 +138,7 @@ export const createQuote = async (event) => {
             //ingreso cada id de channel en la tabla
             await Item.bulkCreate(itemsArray);
         }
-        return createResponse(200, { ...newQuote, itemsArray });
+        return createResponse(200, { ...newQuote.dataValues, itemsArray });
     } catch (err) {
         return createErrorResponse(err.statusCode, err.message);
     } finally {
@@ -164,10 +164,11 @@ export const searchQuote = async (event) => {
             inner join public.clients as cli on cli.id = q.client_id
             where 
         `;
-        if (hasRuc) query = 'cli.ruc = ' + ruc;
-        if (hasQN) query += query.length ? 'AND q.quote_number = ' + quote_number : 'q.quote_number = ' + quote_number;
-        if (hasUID) query += query.length ? 'AND u.id = ' + user_id : 'u.id = ' + user_id;
-        if (hasDate) query += query.length ? 'AND q.creation_date > ' + start_date + ' AND q.creation_date < ' + end_date : 'q.creation_date > ' + start_date + ' AND q.creation_date < ' + end_date;
+        if (hasRuc) query += `cli.ruc = '${ruc}'`;
+        if (hasQN) query += query.length ? ` AND q.quote_number = ${quote_number}`: ` q.quote_number = ${quote_number}`;
+        if (hasUID) query += query.length ? ` AND u.id = ${user_id}`:` u.id = ${user_id}`;
+        if (hasDate) query += query.length ? ` AND q.creation_date > '${start_date}'  AND q.creation_date < '${end_date}'`: ` q.creation_date > '${start_date}'  AND q.creation_date < '${end_date}'`;
+
         const results = await sequelize.query(query, { type: QueryTypes.SELECT });
         // verifico si hay resultados en el query
         if (!(!!results && results.length > 0)) {
@@ -175,6 +176,23 @@ export const searchQuote = async (event) => {
         }
         // entregar el resultado
         return createResponse(200, results);
+    } catch (err) {
+        return createErrorResponse(err.statusCode, err.message);
+    } finally {
+        await sequelize.connectionManager.close();
+    }
+};
+export const findItems = async (event) => {
+    const quote_id = event.pathParameters.quote_id;
+    const sequelize = await initializeSequelize();
+    try {
+        const items = await Item.findAll({
+            where: { quote_id: quote_id }
+        });
+        if (!items) {
+            return createErrorResponse(400, 'Items not found!');
+        }
+        return createResponse(200, items);
     } catch (err) {
         return createErrorResponse(err.statusCode, err.message);
     } finally {
