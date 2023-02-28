@@ -148,6 +148,26 @@ functions:
               - Access-Control-Allow-Headers
               - Access-Control-Allow-Origin
             allowCredentials: false
+  lastQuotes:
+    handler: handler.lastQuotes
+    events:
+      - http:
+          path: quote/last
+          method: get
+          cors:
+            origin: "*" # <-- Specify allowed origin
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - Startlower
+              - Text
+              - Access-Control-Allow-Headers
+              - Access-Control-Allow-Origin
+            allowCredentials: false
   findItems:
     handler: handler.findItems
     events:

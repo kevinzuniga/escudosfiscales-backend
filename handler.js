@@ -184,6 +184,30 @@ export const searchQuote = async (event) => {
         if (!(!!results && results.length > 0)) {
             return createErrorResponse(404, 'No quotes found!');
         }
+        // entregar el resultado
+        return createResponse(200, results);
+    } catch (err) {
+        return createErrorResponse(err.statusCode, err.message);
+    } finally {
+        await sequelize.connectionManager.close();
+    }
+};
+export const lastQuotes = async (event) => {
+    const sequelize = await initializeSequelize();
+    try {
+        // realizo el query
+        let query = `
+            Select q.*, cli.name, cli.ruc, cli.phone
+            from public.quotes as q
+            inner join public.clients as cli on cli.id = q.client_id
+            order by q.creation_date desc
+            limit 10
+        `;
+        const results = await sequelize.query(query, { type: QueryTypes.SELECT });
+        // verifico si hay resultados en el query
+        if (!(!!results && results.length > 0)) {
+            return createErrorResponse(404, 'No quotes found!');
+        }
         // const client = await Client.findOne({
         //     where: { id: quoteData.client_id }
         // });
