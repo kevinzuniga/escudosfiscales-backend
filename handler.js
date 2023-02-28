@@ -138,7 +138,17 @@ export const createQuote = async (event) => {
             //ingreso cada id de channel en la tabla
             await Item.bulkCreate(itemsArray);
         }
-        return createResponse(200, { ...newQuote.dataValues, itemsArray });
+        const client = await Client.findOne({
+            where: { id: quoteData.client_id }
+        });
+        // console.log('CLIENT',client);
+        let clientResult = false;
+        if (client.dataValues) clientResult = { 
+            name: client.dataValues.name,
+            ruc: client.dataValues.ruc,
+            phone: client.dataValues.phone
+        }
+        return createResponse(200, { ...newQuote.dataValues, ...clientResult, items: itemsArray });
     } catch (err) {
         return createErrorResponse(err.statusCode, err.message);
     } finally {
@@ -158,7 +168,7 @@ export const searchQuote = async (event) => {
         const hasUID = !!user_id | false;
         const hasDate = (!!start_date && !!end_date) | false;
         let query = `
-            Select q.*
+            Select q.*, cli.name, cli.ruc, cli.phone
             from public.quotes as q
             inner join public.users as u on u.id = q.user_id
             inner join public.clients as cli on cli.id = q.client_id
@@ -174,6 +184,9 @@ export const searchQuote = async (event) => {
         if (!(!!results && results.length > 0)) {
             return createErrorResponse(404, 'No quotes found!');
         }
+        // const client = await Client.findOne({
+        //     where: { id: quoteData.client_id }
+        // });
         // entregar el resultado
         return createResponse(200, results);
     } catch (err) {
