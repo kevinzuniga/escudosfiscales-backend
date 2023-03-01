@@ -238,7 +238,6 @@ export const findItems = async (event) => {
     }
 };
 export const allUsers = async (event) => {
-    const ruc = event.pathParameters.ruc;
     const sequelize = await initializeSequelize({
         attributes: { exclude: ['password'] }
     });
