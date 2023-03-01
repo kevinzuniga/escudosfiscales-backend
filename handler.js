@@ -156,6 +156,30 @@ export const createQuote = async (event) => {
         await sequelize.connectionManager.close();
     }
 };
+export const deleteQuote = async (event) => {
+    const data = JSON.parse(event.body);
+    const { id } = data;
+    const sequelize = await initializeSequelize();
+    try {
+        //elimino los items del quote
+        await Item.destroy({
+            where: {
+                quote_id: id
+            }
+        });
+        //elimino el quote
+        await Quote.destroy({
+            where: {
+                id: id
+            }
+        });
+        return createResponse(200, "ok");
+    } catch (err) {
+        return createErrorResponse(err.statusCode, err.message);
+    } finally {
+        await sequelize.connectionManager.close();
+    }
+};
 export const searchQuote = async (event) => {
     const sequelize = await initializeSequelize();
     const data = JSON.parse(event.body);
@@ -175,10 +199,12 @@ export const searchQuote = async (event) => {
             inner join public.clients as cli on cli.id = q.client_id
             where 
         `;
-        if (hasRuc) query += `cli.ruc = '${ruc}'`;
-        if (hasQN) query += query.length ? ` AND q.quote_number = ${quote_number}`: ` q.quote_number = ${quote_number}`;
-        if (hasUID) query += query.length ? ` AND u.id = ${user_id}`:` u.id = ${user_id}`;
-        if (hasDate) query += query.length ? ` AND q.creation_date > '${start_date}'  AND q.creation_date < '${end_date}'`: ` q.creation_date > '${start_date}'  AND q.creation_date < '${end_date}'`;
+        let postQuery = '';
+        if (hasRuc) postQuery += `cli.ruc = '${ruc}'`;
+        if (hasQN) postQuery += postQuery.length ? ` AND q.quote_number = ${quote_number}`: ` q.quote_number = ${quote_number}`;
+        if (hasUID) postQuery += postQuery.length ? ` AND u.id = ${user_id}`:` u.id = ${user_id}`;
+        if (hasDate) postQuery += postQuery.length ? ` AND q.creation_date > '${start_date}'  AND q.creation_date < '${end_date}'`: ` q.creation_date > '${start_date}'  AND q.creation_date < '${end_date}'`;
+        query += postQuery;
 
         const results = await sequelize.query(query, { type: QueryTypes.SELECT });
         // verifico si hay resultados en el query
