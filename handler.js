@@ -238,11 +238,11 @@ export const findItems = async (event) => {
     }
 };
 export const allUsers = async (event) => {
-    const sequelize = await initializeSequelize({
-        attributes: { exclude: ['password'] }
-    });
+    const sequelize = await initializeSequelize();
     try {
-        const users = await User.findAll();
+        const users = await User.findAll({
+            attributes: { exclude: ['password'] }
+        });
         if (!users) {
             return createErrorResponse(400, 'Users not found!');
         }
