@@ -47,6 +47,10 @@ export const Quote = sequelize.define('quote', {
         type: DataTypes.DATE,
         allowNull: false
     },
+    expiration_date: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
 }, {
     timestamps: false,
     hooks: {

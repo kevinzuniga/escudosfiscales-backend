@@ -78,7 +78,8 @@ export const login = async (event) => {
     const sequelize = await initializeSequelize();
     try {
         const user = await User.findOne({
-            where: { email: email, password: password }
+            where: { email: email, password: password },
+            attributes: { exclude: ['password'] }
         });
         if (!user) {
             return createErrorResponse(400, 'User not found!');
@@ -230,6 +231,23 @@ export const findItems = async (event) => {
             return createErrorResponse(400, 'Items not found!');
         }
         return createResponse(200, items);
+    } catch (err) {
+        return createErrorResponse(err.statusCode, err.message);
+    } finally {
+        await sequelize.connectionManager.close();
+    }
+};
+export const allUsers = async (event) => {
+    const ruc = event.pathParameters.ruc;
+    const sequelize = await initializeSequelize({
+        attributes: { exclude: ['password'] }
+    });
+    try {
+        const users = await User.findAll();
+        if (!users) {
+            return createErrorResponse(400, 'Users not found!');
+        }
+        return createResponse(200, users);
     } catch (err) {
         return createErrorResponse(err.statusCode, err.message);
     } finally {
