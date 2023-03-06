@@ -204,11 +204,15 @@ export const searchQuote = async (event) => {
         if (hasQN) postQuery += postQuery.length ? ` AND q.quote_number = ${quote_number}`: ` q.quote_number = ${quote_number}`;
         if (hasUID) postQuery += postQuery.length ? ` AND u.id = ${user_id}`:` u.id = ${user_id}`;
         if (hasDate) {
-            let new_start_date = new Date(start_date);
-            new_start_date = new Date(new_start_date.getFullYear(), new_start_date.getMonth(), new_start_date.getDate(), 0, 0, 0);
-            let new_end_date = new Date(end_date);
-            new_end_date = new Date(new_end_date.getFullYear(), new_end_date.getMonth(), new_end_date.getDate(), 23, 59, 59);
-            postQuery += postQuery.length ? ` AND q.creation_date > '${new_start_date.toISOString()}'  AND q.creation_date < '${new_end_date.toISOString()}'`: ` q.creation_date > '${new_start_date.toISOString()}'  AND q.creation_date < '${new_end_date.toISOString()}'`;
+            let new_start_date = String(start_date).slice(-2);
+            new_start_date = parseInt(new_start_date)-1;
+            new_start_date = String(new_start_date).padStart(2, '0');
+            new_start_date = String(start_date).slice(0,-2)+new_start_date;
+            let new_end_date = String(end_date).slice(-2);
+            new_end_date = parseInt(new_end_date)+1;
+            new_end_date = String(new_end_date).padStart(2, '0');
+            new_end_date = String(end_date).slice(0,-2)+new_end_date;
+            postQuery += postQuery.length ? ` AND q.creation_date > '${new_start_date}'  AND q.creation_date < '${new_end_date}'`: ` q.creation_date > '${new_start_date}'  AND q.creation_date < '${new_end_date}'`;
         }
         query += postQuery;
 
