@@ -203,7 +203,13 @@ export const searchQuote = async (event) => {
         if (hasRuc) postQuery += `cli.ruc = '${ruc}'`;
         if (hasQN) postQuery += postQuery.length ? ` AND q.quote_number = ${quote_number}`: ` q.quote_number = ${quote_number}`;
         if (hasUID) postQuery += postQuery.length ? ` AND u.id = ${user_id}`:` u.id = ${user_id}`;
-        if (hasDate) postQuery += postQuery.length ? ` AND q.creation_date > '${start_date}'  AND q.creation_date < '${end_date}'`: ` q.creation_date > '${start_date}'  AND q.creation_date < '${end_date}'`;
+        if (hasDate) {
+            let new_start_date = new Date(start_date);
+            new_start_date = new Date(new_start_date.getFullYear(), new_start_date.getMonth(), new_start_date.getDate(), 0, 0, 0);
+            let new_end_date = new Date(end_date);
+            new_end_date = new Date(new_end_date.getFullYear(), new_end_date.getMonth(), new_end_date.getDate(), 23, 59, 59);
+            postQuery += postQuery.length ? ` AND q.creation_date > '${new_start_date.toISOString()}'  AND q.creation_date < '${new_end_date.toISOString()}'`: ` q.creation_date > '${new_start_date.toISOString()}'  AND q.creation_date < '${new_end_date.toISOString()}'`;
+        }
         query += postQuery;
 
         const results = await sequelize.query(query, { type: QueryTypes.SELECT });
