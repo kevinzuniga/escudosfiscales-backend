@@ -19,6 +19,10 @@ export const Quote = sequelize.define('quote', {
         type: DataTypes.BIGINT,
         defaultValue: 0
     },
+    title: {
+        type: DataTypes.STRING(300),
+        allowNull: true
+    },
     relation_quote_number: {
         type: DataTypes.BIGINT,
         allowNull: true

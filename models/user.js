@@ -30,6 +30,10 @@ export const User = sequelize.define('user', {
     type: DataTypes.STRING(300),
     allowNull: false,
   },
+  phone: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+  },
   role: {
     type: DataTypes.STRING(50),
     allowNull: false,
