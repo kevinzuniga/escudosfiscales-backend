@@ -1,9 +1,15 @@
 import Sequelize from 'sequelize';
 
 const CURRENT_LAMBDA_FUNCTION_TIMEOUT= 3000;
-export const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
-  host: 'database-1.ck2muolhba9x.us-east-1.rds.amazonaws.com',
+export const sequelize = new Sequelize('d851o8v6clfdma', 'u2gv12cp6hijc6', 'p04370ef449f2dbf91748f8d9324f4ac899376a8fcc8f9a3ad5b943c672a511c3', {
+  host: 'cd34mo1pb3u614.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com',
   dialect: 'postgres',
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  },
   pool: {
     /*
      * Lambda functions process one request at a time but your code may issue multiple queries
